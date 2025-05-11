@@ -1,8 +1,4 @@
-import React from "react";
-
-type Props = {};
-
-export default function MaxTempIcon({}: Props) {
+export default function MaxTempIcon() {
   return (
     <svg
       width="24"

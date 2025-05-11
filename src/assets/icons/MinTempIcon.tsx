@@ -1,8 +1,4 @@
-import React from "react";
-
-type Props = {};
-
-export default function MinTempIcon({}: Props) {
+export default function MinTempIcon() {
   return (
     <svg
       width="24"
@@ -14,9 +10,9 @@ export default function MinTempIcon({}: Props) {
       <path
         d="M8.40001 17.9H8.45626M14.55 11.75L16.8 9.49999M16.8 9.49999L19.05 11.75M16.8 9.49999V5.89999M16.8 9.49999L13.8 7.99999M16.8 9.49999L19.8 7.99999M12.6 17.9C12.6 20.2196 10.7196 22.1 8.40001 22.1C6.08042 22.1 4.20001 20.2196 4.20001 17.9C4.20001 16.4727 4.91192 15.2118 6.00001 14.4528V5.29843C6.00001 3.97294 7.07453 2.89999 8.40001 2.89999C9.7255 2.89999 10.8 3.97451 10.8 5.29999V14.4528C11.6593 15.2219 12.6 16.6561 12.6 17.9Z"
         stroke="var(--gray-12)"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

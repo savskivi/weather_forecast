@@ -1,8 +1,4 @@
-import React from "react";
-
-type Props = {};
-
-export default function HumidityIcon({}: Props) {
+export default function HumidityIcon() {
   return (
     <svg
       width="48"

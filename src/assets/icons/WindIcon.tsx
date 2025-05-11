@@ -1,8 +1,4 @@
-import React from "react";
-
-type Props = {};
-
-export default function WindIcon({}: Props) {
+export default function WindIcon() {
   return (
     <svg
       width="49"

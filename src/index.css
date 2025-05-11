@@ -82,3 +82,14 @@ h6 {
 }
 
 /* ------------------------------------ */
+.apexcharts-tooltip {
+  background-color: #1e1e1e !important; /* Тёмный фон */
+  color: #ffffff !important;           /* Яркий текст */
+  border: none !important;
+  font-size: 14px !important;
+}
+
+.apexcharts-tooltip-title {
+  background-color: #111 !important;
+  color: #fff !important;
+}

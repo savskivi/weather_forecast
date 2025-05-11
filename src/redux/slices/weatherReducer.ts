@@ -39,7 +39,7 @@ export const weatherSlice = createSlice({
     },
 
     setTodayHourForecast: (state, action: PayloadAction<CurrentWeather[]>) => {
-        state.todayHourForecast = action.payload;
+        state.todayHourForecast = action.payload.slice(0, 5);
     },
   },
 });

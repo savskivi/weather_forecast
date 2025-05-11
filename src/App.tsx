@@ -21,29 +21,24 @@ import SunriseIcon from "./assets/icons/SunriseIcon";
 import SunsetIcon from "./assets/icons/SunsetIcon";
 import cloudiness from "./assets/cloudiness.png";
 import visibility from "./assets/visibility.png";
-import lightRainDay from "./assets/light-rain-day.png";
 import { useAppDispatch, useAppSelector } from "./redux/store";
 import { useEffect, useState } from "react";
 import { apiKey, axiosInstance } from "./axiosInstance";
 import {
   setCity,
   setTheme,
+  setTodayHourForecast,
   setTodayWeather,
   setWeekWeather,
 } from "./redux/slices/weatherReducer";
-import {
-  formatTime,
-  getWeatherIcon,
-  getWeekDay,
-} from "./constants";
+import { formatTime, getWeatherIcon, getWeekDay } from "./constants";
 import { Theme as ThemeType } from "./types.ts";
+import { ApexChart } from "./ApexChart.tsx";
 
 function App() {
   const dispatch = useAppDispatch();
-  const { theme, todayWeather, city, weekWeather } = useAppSelector(
-    (state) => state.weather
-  );
-  console.log(weekWeather)
+  const { theme, todayWeather, city, weekWeather, todayHourForecast } =
+    useAppSelector((state) => state.weather);
 
   const [searchValue, setSearchValue] = useState<string>("");
 
@@ -67,30 +62,36 @@ function App() {
 
   function onSuccess(position: GeolocationPosition) {
     const { latitude, longitude } = position.coords;
+
+    getWeatherApi(latitude, longitude);
+
     axiosInstance
+      .get(`/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&appid=${apiKey}`)
+      .then((res) => {
+        dispatch(setCity(res.data[0]));
+      });
+
+    getForecastApi(latitude, longitude);
+  }
+
+  function getWeatherApi(lat: number, lon: number) {
+    return axiosInstance
       .get(
-        `/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`
+        `/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
       )
       .then((res) => {
-        console.log(res.data);
         dispatch(setTodayWeather(res.data));
+      });
+  }
 
-        axiosInstance
-          .get(
-            `/geo/1.0/reverse?lat=${res.data.coord.lat}&lon=${res.data.coord.lon}&appid=${apiKey}`
-          )
-          .then((res) => {
-            console.log(res.data);
-            dispatch(setCity(res.data[0]));
-          });
-
-        axiosInstance
-          .get(
-            `/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=metric&appid=${apiKey}`
-          )
-          .then((res) => {
-            dispatch(setWeekWeather(res.data.list));
-          });
+  function getForecastApi(lat: number, lon: number) {
+    return axiosInstance
+      .get(
+        `/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+      )
+      .then((res) => {
+        dispatch(setWeekWeather(res.data.list));
+        dispatch(setTodayHourForecast(res.data.list));
       });
   }
 
@@ -98,26 +99,12 @@ function App() {
     axiosInstance
       .get(`/geo/1.0/direct?q=${searchValue}&appid=${apiKey}`)
       .then((res) => {
-        console.log(res.data);
         const { lat, lon } = res.data[0];
         dispatch(setCity(res.data[0]));
 
-        axiosInstance
-          .get(
-            `/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-          )
-          .then((res) => {
-            console.log(res.data);
-            dispatch(setTodayWeather(res.data));
-          });
+        getWeatherApi(lat, lon);
 
-          axiosInstance
-          .get(
-            `/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-          )
-          .then((res) => {
-            dispatch(setWeekWeather(res.data.list));
-          });
+        getForecastApi(lat, lon);
       });
   }
 
@@ -169,7 +156,9 @@ function App() {
 
           <Flex justify={"between"} mt={"4"} mb={"2"}>
             <Text>{city?.name}</Text>
-            <Text>{todayWeather && getWeekDay(todayWeather?.timezone, false)}</Text>
+            <Text>
+              {todayWeather && getWeekDay(todayWeather?.timezone, false)}
+            </Text>
           </Flex>
 
           <Separator size={"4"} mb={"4"} />
@@ -244,16 +233,32 @@ function App() {
 
             <Box pt="3">
               <Tabs.Content value="today">
-                <Text size="2">Make changes to your account.</Text>
+                <Flex justify={"between"}>
+                  {todayHourForecast.map((weather, index) => (
+                    <Card key={index}>
+                      <Flex direction={"column"} align={"center"}>
+                        <Text>{formatTime(weather.dt)}</Text>
+                        <img
+                          src={getWeatherIcon(weather.weather[0].id, false)}
+                          width="70px"
+                        />
+                        <Text>{Math.round(weather.main.temp)}°</Text>
+                      </Flex>
+                    </Card>
+                  ))}
+                </Flex>
               </Tabs.Content>
 
               <Tabs.Content value="week">
                 <Flex justify={"between"}>
-                  {weekWeather.map((weather) => (
-                    <Card>
+                  {weekWeather.map((weather, index) => (
+                    <Card key={index}>
                       <Flex direction={"column"} align={"center"}>
                         <Text>{getWeekDay(weather.dt, true)}</Text>
-                        <img src={getWeatherIcon(weather.weather[0].id, false)} width="70px" />
+                        <img
+                          src={getWeatherIcon(weather.weather[0].id, false)}
+                          width="70px"
+                        />
                         <Text>{Math.round(weather.main.temp)}°</Text>
                       </Flex>
                     </Card>
@@ -312,9 +317,10 @@ function App() {
               </Flex>
 
               <Flex gap={"4"} mt={"6"}>
-                <Card>
-                  <Box minWidth={"100%"}>
-                    <Text>Precipitation</Text>
+                <Card style={{ width: "100%" }}>
+                  <Box minWidth={"100%"} width={"100%"}>
+                    <Text>Humidity & Cloudiness</Text>
+                    <ApexChart />
                   </Box>
                 </Card>
 

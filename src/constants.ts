@@ -82,7 +82,6 @@ export function getWeekDay(timezone: number, isShort: boolean) {
 
 export function formatTime(timestamp: number) {
   const date = new Date(timestamp * 1000);
-  console.log(date);
   let hours = date.getHours();
   const minutes = date.getMinutes();
   const ampm = hours >= 12 ? "PM" : "AM";
